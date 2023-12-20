@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:azure-cosmos-db-connector-mule-4="http://www.mulesoft.org/schema/mule/azure-cosmos-db-connector-mule-4"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/azure-cosmos-db-connector-mule-4 http://www.mulesoft.org/schema/mule/azure-cosmos-db-connector-mule-4/current/mule-azure-cosmos-db-connector-mule-4.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="181a8122-0e72-4953-b0b1-7f7ddf23db58" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<azure-cosmos-db-connector-mule-4:key-token-config name="Azure_Cosmos_Db_Key_Token_Config" doc:name="Azure Cosmos Db Key Token Config" doc:id="e60241ee-98ad-423f-8b9c-65c74417945b" >
+		<azure-cosmos-db-connector-mule-4:key-token-auth-connection baseUri="${cosmos.databaseUrl}" key="${cosmos.keyToken}" version="${cosmos.version}" />
+	</azure-cosmos-db-connector-mule-4:key-token-config>
+	<flow name="azure-cosmosFlow" doc:id="b69cab59-c703-4b55-a600-4ec377ec9fce" >
+		<http:listener doc:name="Listener" doc:id="8c5eab03-1156-4c85-a104-4336675788d0" config-ref="HTTP_Listener_config" path="/retrieve"/>
+		<azure-cosmos-db-connector-mule-4:list-documents doc:name="List Documents" doc:id="d3bcde8a-0be4-452a-87a2-2dfffa986159" config-ref="Azure_Cosmos_Db_Key_Token_Config" dbIdUriParam="ToDoList" collIdUriParam="Items"/>
+		<ee:transform doc:name="Transform Message" doc:id="6f4a7a83-4e2f-4149-8975-8c25b45e2850" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map(obj, idx) -> (obj)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
